@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Test model loads and predicts
+        run: |
+          python3 -c "
+          import joblib
+          import pandas as pd
+          import numpy as np
+
+          model = joblib.load('models/best_model.pkl')
+          sample = pd.DataFrame([{
+              'Time': 0, 'Amount': 100,
+              **{f'V{i}': 0.0 for i in range(1, 29)}
+          }])
+          pred = model.predict(sample)
+          assert pred is not None
+          print('PASS')
+          "
