@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from pydantic import BaseModel, Field
 from contextlib import asynccontextmanager
-import mlflow.pyfunc
+import joblib
 import pandas as pd
 
 model = None
@@ -9,7 +9,7 @@ model = None
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     global model
-    model = mlflow.pyfunc.load_model("models:/fraud-detection-model@champion")
+    model = joblib.load("models/best_model.pkl")
     print("Model loaded successfully")
     yield
 
