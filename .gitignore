@@ -2,9 +2,9 @@ venv/
 __pycache__/
 *.pyc
 .env
-*.csv
+data/*.csv
+!data/sample.csv
 *.pkl
 mlruns/
 .DS_Store
-data/
 mlflow.db
