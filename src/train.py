@@ -86,6 +86,7 @@ def train(X_train, y_train, pipeline):
     return search
 
 def save_model(model, path):
+    os.makedirs(os.path.dirname(path), exist_ok=True)
     joblib.dump(model, path)
 
 
