@@ -18,13 +18,14 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
+      - name: Train model on sample data
+        run: python3 src/train.py --data data/sample.csv
+
       - name: Test model loads and predicts
         run: |
           python3 -c "
           import joblib
           import pandas as pd
-          import numpy as np
-
           model = joblib.load('models/best_model.pkl')
           sample = pd.DataFrame([{
               'Time': 0, 'Amount': 100,

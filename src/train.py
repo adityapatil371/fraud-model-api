@@ -12,9 +12,12 @@ import matplotlib.pyplot as plt
 import os
 from sklearn.model_selection import RandomizedSearchCV
 import mlflow
+import argparse
 
-def load_data(path):
+def load_data(path=''):
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    if path:
+        return pd.read_csv(path)
     return pd.read_csv(os.path.join(BASE_DIR, 'data', 'creditcard.csv'))
 
 def split_data(df):
@@ -87,26 +90,24 @@ def save_model(model, path):
 
 
 def main():
-    df = load_data('')
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--data', type=str, default='')
+    args = parser.parse_args()
+
+    df = load_data(args.data)
     X_train, X_val, X_test, y_train, y_val, y_test = split_data(df)
-    
     pos_weight = y_train.value_counts()
     scale_pos_weight = pos_weight[0] / pos_weight[1]
-    
     mlflow.set_experiment("fraud-detection")
     with mlflow.start_run():
         mlflow.log_param("scale_pos_weight", scale_pos_weight)
-
         pipeline = build_pipeline(scale_pos_weight)
         best_model = train(X_train, y_train, pipeline)
-
         mlflow.log_params(best_model.best_params_)
-
         metrics = evaluate(best_model, X_val, y_val)
         mlflow.log_metrics(metrics)
-
+        save_model(best_model, 'models/best_model.pkl')
         mlflow.sklearn.log_model(best_model, "model", registered_model_name="fraud-detection-model")
 
 if __name__ == '__main__':
     main()
-
